@@ -30,8 +30,8 @@
             const authZone = document.getElementById('clerk-auth-zone');
 
             if (Clerk.user) {
-                // ЕСЛИ ВОШЕЛ: проверяем, был ли сохранен цвет ранее. Если нет — ставим по умолчанию белый или серый
-                const savedColor = localStorage.getItem('bgColor') || '#f4f7f6';
+                // Достаем цвет из облака Clerk именно для ЭТОГО аккаунта
+                const savedColor = Clerk.user.unsafeMetadata.bgColor || '#f4f7f6';
                 body.style.backgroundColor = savedColor;
 
                 authZone.innerHTML = `
@@ -49,26 +49,30 @@
                     </button>
                 `;
                 
-                // Логика переключения на КРАСНЫЙ
+                // Функция для сохранения цвета в профиль Clerk
+                async function saveColorToClerk(color) {
+                    body.style.backgroundColor = color;
+                    // Отправляем выбранный цвет в базу данных Clerk под этот аккаунт
+                    await Clerk.user.update({
+                        unsafeMetadata: { bgColor: color }
+                    });
+                }
+
                 document.getElementById('btn-red').addEventListener('click', () => {
-                    body.style.backgroundColor = '#ff4d4d';
-                    localStorage.setItem('bgColor', '#ff4d4d'); // Запоминаем выбор
+                    saveColorToClerk('#ff4d4d');
                 });
 
-                // Логика переключения на ЗЕЛЕНЫЙ
                 document.getElementById('btn-green').addEventListener('click', () => {
-                    body.style.backgroundColor = '#2ecc71';
-                    localStorage.setItem('bgColor', '#2ecc71'); // Запоминаем выбор
+                    saveColorToClerk('#2ecc71');
                 });
                 
-                // Логика кнопки "Выйти"
                 document.getElementById('sign-out-btn').addEventListener('click', async () => {
                     await Clerk.signOut();
                     window.location.href = MY_SITE; 
                 });
 
             } else {
-                // ЕСЛИ НЕ ВОШЕЛ: фон всегда железно БЕЛЫЙ
+                // Если не вошел — фон всегда строго БЕЛЫЙ
                 body.style.backgroundColor = '#ffffff';
 
                 authZone.innerHTML = `
