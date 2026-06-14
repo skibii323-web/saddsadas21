@@ -21,7 +21,8 @@
     </div>
 
     <script>
-        const MY_SITE = 'https://skibii323-web.github.io/';
+        // Твой точный адрес папки на GitHub Pages
+        const MY_SITE = 'https://skibii323-web.github.io/saddsadas21/';
 
         window.addEventListener('load', async function () {
             await Clerk.load();
@@ -29,6 +30,7 @@
             const authZone = document.getElementById('clerk-auth-zone');
 
             if (Clerk.user) {
+                // ЕСЛИ ВОШЕЛ: Показываем почту и кнопку "Выйти"
                 authZone.innerHTML = `
                     <p style="font-size: 16px; color: #333; margin-bottom: 20px;">
                         Вы зашли как:<br><b style="color: #000;">${Clerk.user.primaryEmailAddress.emailAddress}</b>
@@ -40,10 +42,11 @@
                 
                 document.getElementById('sign-out-btn').addEventListener('click', async () => {
                     await Clerk.signOut();
-                    window.location.href = MY_SITE;
+                    window.location.href = MY_SITE; // Возвращаем в нужную папку
                 });
 
             } else {
+                // ЕСЛИ НЕ ВОШЕЛ: Показываем кнопку "Войти"
                 authZone.innerHTML = `
                     <button id="sign-in-btn" style="padding: 12px 24px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; width: 100%;">
                         Войти
@@ -51,6 +54,7 @@
                 `;
                 
                 document.getElementById('sign-in-btn').addEventListener('click', () => {
+                    // Принудительно заставляем Clerk возвращать строго в твою папку saddsadas21
                     Clerk.openSignIn({
                         redirectUrl: MY_SITE,
                         afterSignInUrl: MY_SITE,
