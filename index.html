@@ -13,7 +13,7 @@
         type="text/javascript">
     </script>
 </head>
-<body style="font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f4f7f6;">
+<body id="site-body" style="font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #ffffff; transition: background 0.3s ease;">
 
     <div style="text-align: center; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); min-width: 300px;">
         <h1>Мой сайт</h1>
@@ -21,8 +21,8 @@
     </div>
 
     <script>
-        // Твой точный адрес папки на GitHub Pages
         const MY_SITE = 'https://skibii323-web.github.io/saddsadas21/';
+        const body = document.getElementById('site-body');
 
         window.addEventListener('load', async function () {
             await Clerk.load();
@@ -30,23 +30,47 @@
             const authZone = document.getElementById('clerk-auth-zone');
 
             if (Clerk.user) {
-                // ЕСЛИ ВОШЕЛ: Показываем почту и кнопку "Выйти"
+                // ЕСЛИ ВОШЕЛ: проверяем, был ли сохранен цвет ранее. Если нет — ставим по умолчанию белый или серый
+                const savedColor = localStorage.getItem('bgColor') || '#f4f7f6';
+                body.style.backgroundColor = savedColor;
+
                 authZone.innerHTML = `
-                    <p style="font-size: 16px; color: #333; margin-bottom: 20px;">
+                    <p style="font-size: 16px; color: #333; margin-bottom: 10px;">
                         Вы зашли как:<br><b style="color: #000;">${Clerk.user.primaryEmailAddress.emailAddress}</b>
                     </p>
+                    
+                    <div style="margin-bottom: 20px; display: flex; gap: 10px; justify-content: center;">
+                        <button id="btn-red" style="padding: 8px 15px; background: #ff4d4d; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Красный</button>
+                        <button id="btn-green" style="padding: 8px 15px; background: #2ecc71; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Зеленый</button>
+                    </div>
+
                     <button id="sign-out-btn" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 6px; font-size: 15px; cursor: pointer; font-weight: bold; width: 100%;">
                         Выйти
                     </button>
                 `;
                 
+                // Логика переключения на КРАСНЫЙ
+                document.getElementById('btn-red').addEventListener('click', () => {
+                    body.style.backgroundColor = '#ff4d4d';
+                    localStorage.setItem('bgColor', '#ff4d4d'); // Запоминаем выбор
+                });
+
+                // Логика переключения на ЗЕЛЕНЫЙ
+                document.getElementById('btn-green').addEventListener('click', () => {
+                    body.style.backgroundColor = '#2ecc71';
+                    localStorage.setItem('bgColor', '#2ecc71'); // Запоминаем выбор
+                });
+                
+                // Логика кнопки "Выйти"
                 document.getElementById('sign-out-btn').addEventListener('click', async () => {
                     await Clerk.signOut();
-                    window.location.href = MY_SITE; // Возвращаем в нужную папку
+                    window.location.href = MY_SITE; 
                 });
 
             } else {
-                // ЕСЛИ НЕ ВОШЕЛ: Показываем кнопку "Войти"
+                // ЕСЛИ НЕ ВОШЕЛ: фон всегда железно БЕЛЫЙ
+                body.style.backgroundColor = '#ffffff';
+
                 authZone.innerHTML = `
                     <button id="sign-in-btn" style="padding: 12px 24px; background: #2563eb; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: bold; width: 100%;">
                         Войти
@@ -54,7 +78,6 @@
                 `;
                 
                 document.getElementById('sign-in-btn').addEventListener('click', () => {
-                    // Принудительно заставляем Clerk возвращать строго в твою папку saddsadas21
                     Clerk.openSignIn({
                         redirectUrl: MY_SITE,
                         afterSignInUrl: MY_SITE,
